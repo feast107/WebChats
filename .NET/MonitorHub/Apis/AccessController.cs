@@ -1,17 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System;
-using System.Threading.Tasks;
-using MonitorHub.Models;
-using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using MonitorHub.Models;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace MonitorHub.Apis
 {
@@ -27,9 +23,9 @@ namespace MonitorHub.Apis
         [Route("SignIn")]
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult 登入([FromBody] UserIdentity identity)
+        public IActionResult Login([FromBody] UserIdentity identity)
         {
-            if (!是否登录())
+            if (!IsLogin())
             {
                 if (identity.UserName == "" || identity.Password == null)
                 {
@@ -47,7 +43,7 @@ namespace MonitorHub.Apis
         [Route("Test")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        public IActionResult 测试([FromBody] UserIdentity identity)
+        public IActionResult Test([FromBody] UserIdentity identity)
         {
             JWTAuthenticate(identity);
             return Ok();
@@ -56,16 +52,16 @@ namespace MonitorHub.Apis
         [Route("Test2")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet]
-        public IActionResult 测试2()
+        public IActionResult Test2()
         {
             return Ok();
         }
 
         [Route("SignOut")]
         [HttpGet]
-        public IActionResult 退出()
+        public IActionResult Logout()
         {
-            if (是否登录())
+            if (IsLogin())
                 HttpContext.SignOutAsync().Wait();
             return Ok("已退出登录");
         }
@@ -74,7 +70,7 @@ namespace MonitorHub.Apis
         [HttpGet]
         public IActionResult 检查()
         {
-            if (是否登录())
+            if (IsLogin())
             {
                 return Ok("您已经登录");
             }
@@ -140,7 +136,7 @@ namespace MonitorHub.Apis
         /// 是否验证
         /// </summary>
         /// <returns></returns>
-        private bool 是否登录()
+        private bool IsLogin()
         {
             return HttpContext.User.Identity != null && HttpContext.User.Identity.IsAuthenticated;
         }
